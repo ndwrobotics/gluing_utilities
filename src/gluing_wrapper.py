@@ -37,6 +37,12 @@ def glue(X1, X2, l, prec, hprec=None):
         return magma.function_call("GlueFast", [X1, X2, l, prec])
     else:
         return magma.function_call("GlueFast", [X1, X2, l, prec, hprec])
+        
+def glue_invs(X1, X2, l, prec, hprec=None):
+    if hprec is None:
+        return magma.function_call("GlueFastInv", [X1, X2, l, prec])
+    else:
+        return magma.function_call("GlueFastInv", [X1, X2, l, prec, hprec])
 
 def verify_gluing(X1, X2, X3, prec=500):
     return magma.function_call("VerifyGluing", [X1, X2, X3, prec])

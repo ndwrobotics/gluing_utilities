@@ -16,6 +16,18 @@ intrinsic GlueFast(X1::Crv, X2::Crv, ell::RngIntElt, prec::RngIntElt, hprec::Rng
     return AllGeometricGluingsCCEfficient(BaseChange(X1, R), BaseChange(X2, R), R, ell : hprec:=hprec);
 end intrinsic;
 
+intrinsic GlueFastInv(X1::Crv, X2::Crv, ell::RngIntElt, prec::RngIntElt, hprec::RngIntElt) -> .
+    {Wrapper for efficiently finding all gluings with a particular algebraization precision and a particular subgroup search precision}
+    R := RationalsExtra(prec);
+    return AllGeometricGluingsInvCCEfficient(BaseChange(X1, R), BaseChange(X2, R), R, ell : hprec:=hprec);
+end intrinsic;
+
+intrinsic GlueFastInv(X1::Crv, X2::Crv, ell::RngIntElt, prec::RngIntElt) -> .
+    {Wrapper for efficiently finding all gluings with a particular algebraization precision}
+    R := RationalsExtra(prec);
+    return AllGeometricGluingsInvCCEfficient(BaseChange(X1, R), BaseChange(X2, R), R, ell);
+end intrinsic;
+
 intrinsic VerifyGluing(X1::Crv, X2::Crv, X3::Crv, prec::RngIntElt) -> BoolElt
     {Verifies that a claimed gluing is correct.}
     F := RationalsExtra(prec);
