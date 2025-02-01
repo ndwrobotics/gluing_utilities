@@ -5,14 +5,13 @@ Unfortunately it is not possible for the entire workflow to be done with only on
 
 # Contents
 
-## large_scale_search
-
-Contains code to perform searches for gluings as well as the output of said code.
 
 ## src
 
-Contains the code that does the actual work
+Contains the code that does the actual work. By file...
+
+### 
 
 ## test
 
-Contains tests for the code in src. Tests for the actual 
+Contains tests for the code in src. Tests for the SageMath code are test.ipynb, while tests for the Magma code are in test_magma.ipynb. This directory also contains timing tests for sample gluings.

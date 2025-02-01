@@ -34,8 +34,12 @@ def magma_setup():
     
 def glue(X1, X2, l, prec, hprec=None):
     if hprec is None:
+        print("Precision for finding H: default")
+        print("Precision for finding invariants:", prec)
         return magma.function_call("GlueFast", [X1, X2, l, prec])
     else:
+        print("Precision for finding H:", hprec")
+        print("Precision for finding invariants:", prec)
         return magma.function_call("GlueFast", [X1, X2, l, prec, hprec])
         
 def glue_invs(X1, X2, l, prec, hprec=None):
