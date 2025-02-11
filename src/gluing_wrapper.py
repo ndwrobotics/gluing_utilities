@@ -4,7 +4,7 @@ from sage.all_cmdline import *
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-
+## Setup magma console for gluing
 def magma_setup():
     print(script_dir)
     magma.chdir(script_dir)
@@ -22,16 +22,10 @@ def magma_setup():
     """)
 
 
-#def magma_reset():
-#    magma.console()
-#    magma_setup()
-
-#def glue_slow(X1, X2, l, prec):
-    #Q = magma.function_call("RationalsExtra", [prec])
-    #print(Q)
-    #return magma.function_call("AllGeometricGluingsCC", [X1, X2, Q, l])
-    #return magma.function_call("GlueSlow", [X1, X2, l, prec])
-    
+# Given an elliptic curve X1, a genus two curve X2, and a prime l,
+# find all possible gluings of X1 and X2 along l-torsion
+# where we operate with precision `prec` in the gluing step
+# and precision `hprec` in the step of finding H.
 def glue(X1, X2, l, prec, hprec=None):
     if hprec is None:
         print("Precision for finding H: default")
@@ -41,7 +35,12 @@ def glue(X1, X2, l, prec, hprec=None):
         print("Precision for finding H:", hprec)
         print("Precision for finding invariants:", prec)
         return magma.function_call("GlueFast", [X1, X2, l, prec, hprec])
-        
+    
+# Given an elliptic curve X1, a genus two curve X2, and a prime l,
+# find all possible (Diximier-Ohno or Shioda) invariants
+# of gluings of X1 and X2 along l-torsion
+# where we operate with precision `prec` in the gluing step
+# and precision `hprec` in the step of finding H.
 def glue_invs(X1, X2, l, prec, hprec=None):
     if hprec is None:
         print("Precision for finding H: default")
@@ -52,6 +51,8 @@ def glue_invs(X1, X2, l, prec, hprec=None):
         print("Precision for finding invariants:", prec)
         return magma.function_call("GlueFastInv", [X1, X2, l, prec, hprec])
 
+# Given an elliptic curve X1, a genus two curve X2,
+# verify that X3 is a gluing of X1 and X2.
 def verify_gluing(X1, X2, X3, prec=500):
     return magma.function_call("VerifyGluing", [X1, X2, X3, prec])
 

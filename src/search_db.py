@@ -3,33 +3,10 @@ sys.path.append(os.environ['HOME'] + "/lmfdb")
 from lmfdb import db
 from compute_traces import is_frob_matrix_diagonal_batch, find_identity_prime
 
-#OLD
-def search_mf_by_traces(trace_function, conductor, prime_bound, modulus, level_bound, high_weight=False):
-    """Returns an iterator of all modular forms with dimension 1, weight 2,
-    level <= level_bound, and a_p \\equiv trace_dict[a_p] \mod modulus for all
-    prime p not dividing conductor and less than prime_bound, except those for which p is a prime factor of the 
-    level of the modular form."""
-    query = {'level': {'$lte': level_bound}, 'dim': 1}
-    if high_weight:
-        query['weight'] = modulus + 1
-    else: query['weight'] = 2
-    sub_query = []
-    for p in prime_range(prime_bound):
-        if(conductor % p == 0):
-            continue
-        #query['traces.' + str(index)] = {'$mod': [value, modulus]}
-        sub_query.append({'$or': [
-            {'traces.' + str(p) : {'$mod': [trace_function(p), modulus]}},
-            {'level_primes': {'$contains': p}}
-        ]})
-    query['$and'] = sub_query
-    return db.mf_newforms.search(query, projection=['label'])
-    
+#Returns a list of candidate gluable elliptic curves (out of elliptic curve in LMFDB)
+#whose frobenius trace match the `trace_function` as detailed in Proposition 3.10. of the paper.
 def search_ec_by_traces(trace_function, conductor, prime_bound, modulus):
-    """Returns an iterator of all ellilptic curves with 
-    a_p \\equiv trace_dict[a_p] \mod modulus for all
-    prime p not dividing conductor and less than prime_bound, except those for which p is a prime factor of the 
-    level of the modular form."""
+
     query = []
     for i, p in enumerate(prime_range(prime_bound)):
         if(conductor % p == 0):
@@ -57,6 +34,10 @@ def search_ec_by_traces(trace_function, conductor, prime_bound, modulus):
         for ec in db.ec_curvedata.search({'lmfdb_iso': {'$or': curve_labels}}, projection=['ainvs'])
     ]
 
+#Attempts to narrow down the list of gluable elliptic curves further
+#by following strategies outlined in Remark 6.3.
+#Takes input as genus 2 curves C, conductor N, prime l, and a list of elliptic curves.
+#Still experimental.
 def filter_reducible_case(C, N, l, elliptic_curves, bound=500):
     if len(elliptic_curves) == 0:
         return elliptic_curves
@@ -96,7 +77,8 @@ def filter_reducible_case(C, N, l, elliptic_curves, bound=500):
     if len(result) > 100:
         result = filter_large_prime(C, l, result, bound=40000)
     return result
-    
+
+
 def filter_large_prime(C, l, elliptic_curves, bound=40000):
     result = []
     primes = find_identity_prime(C,l,bound)

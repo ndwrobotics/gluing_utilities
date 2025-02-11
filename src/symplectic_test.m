@@ -1,7 +1,8 @@
 
 //helper function to find a torsion point
 intrinsic FindGoodTorsionPoint(E::CrvEll, l::RngIntElt, p::RngIntElt, F::FldFin) -> PtEll
-    {Find a good torsion point}
+    {Given elliptic curve E, prime l, prime p (which is characteristic of field F),
+    find a point P in E[l](F) such that Frob(P) is not an integer multiple of P.}
     f<x> := DivisionPolynomial(ChangeRing(E, GF(p)), l);
     for factor in Factorization(f) do
         g := factor[1];
@@ -19,7 +20,10 @@ end intrinsic;
 
 
 intrinsic FindSymplecticTestPrime(C::CrvHyp, N::RngIntElt, E::CrvEll, l::RngIntElt) -> RngIntElt
-    {Find prime for symplectic testing}
+    {Given genus 2 curve C with conductor N, elliptic curve E, and a prime l,
+    find a prime p suitable for symplectic test (i.e., the one that Frob_p
+    acts on E[l] by matrix of the form [[1,a],[0,1]] for a != 0.)
+    Returns -1 if such prime p is not found up to 10000.}
     NE := Conductor(E);
     for p in PrimesUpTo(10000) do
         if (N mod p eq 0) or (NE mod p eq 0) or (p eq l) then
@@ -44,7 +48,8 @@ end intrinsic;
 
 
 intrinsic SymplecticTest(C::CrvHyp, E::CrvEll, l::RngIntElt, p::RngIntElt) -> RngIntElt
-    {Perform Symplectic Test}
+    {Perform Symplectic Test on genus 2 curve C, elliptic curve E, prime l,
+    and prime p (obtained by FindSymplecticTestPrime).}
     F<a> := GF(p^(l*(l-1)));
     E1 := ChangeRing(E,F);
     C1 := ChangeRing(C,F);
@@ -89,7 +94,8 @@ intrinsic SymplecticTest(C::CrvHyp, E::CrvEll, l::RngIntElt, p::RngIntElt) -> Rn
 end intrinsic;
 
 intrinsic SymplecticTestBatch(C::CrvHyp, N::RngIntElt, Es::[CrvEll], l::RngIntElt) -> SeqEnum
-    {Perform Symplectic Test}
+    {Perform Symplectic Test on genus 2 curve C, a list of elliptic curves Es, prime l,
+    and prime p (obtained by FindSymplecticTestPrime).}
     result := [];
     for E in Es do
         p := FindSymplecticTestPrime(C,N,E,l);

@@ -7,39 +7,18 @@ magma.attach_spec("../../CHIMP/CHIMP.spec")
 magma.attach("helpers.m")
 
 
-## using Magma implementation, compute frobenius polynomial
+## using Magma implementation, compute frobenius polynomial of curve C at prime p
 def frob_poly(C, p):
     C1 = C.change_ring(GF(p))
     return magma.function_call('FrobeniusPoly', [C1]).sage()
 
-## check whether the matrix of Frob_p (in C) is diagonal mod l or not
-## should work for both genus one and two
-def is_frob_matrix_diagonal(C, l, p):
-    return magma.function_call('IsFrobeniusMatrixDiagonal', [C,l,p]).sage()
-
-## check whether the matrix of Frob_p (in C) is diagonal mod l or not for each prime p < bound
-## should work for both genus one and two
-## return a list of -1 (bad reduction), 0 (not diagonal), 1 (diagonal)
-def is_frob_matrix_diagonal_batch(C, l, primes):
-    if isinstance(C, sage.schemes.elliptic_curves.ell_generic.EllipticCurve_generic):
-        result = []
-        for p in primes:
-            if C.discriminant() % p == 0 :
-                result.append(-1 )
-            else:
-                f = C.change_ring(GF(p)).division_polynomial(l)
-                x = f.variables()[0]
-                result.append(1  if power_mod(x, p**(l-1) , f) == x  else 0 )
-        return result
-    else:
-        return magma.function_call('IsFrobeniusMatrixDiagonalBatch', [C,l,primes]).sage()
-
-
-## return a list of gluable primes given a curve and conductor
-def gluable_primes(C, conductor, bound=Integer(200)):
-    bad_primes = ZZ(conductor).prime_divisors()
-    sqfree_cond = squarefree_part(conductor)
-    d = sqrt(conductor / sqfree_cond)
+## given a genus two curve C, conductor N, and the prime bound
+## return a finite superset of gluable primes given a curve and conductor,
+## where we filter up to primes of a given bound.
+def gluable_primes(C, N, bound=Integer(200)):
+    bad_primes = ZZ(N).prime_divisors()
+    sqfree_cond = squarefree_part(N)
+    d = sqrt(N / sqfree_cond)
     Zd = Integers(d)
     M = Integer(0)
     QQx = QQ['x']; (x,) = QQx._first_ngens(1)
@@ -75,6 +54,7 @@ def gluable_primes(C, conductor, bound=Integer(200)):
                 break
     return set(ZZ(M).prime_divisors()).union(gluable_bad_primes), last_witness
 
+#compute the conductor bound of the one-dimensional representation according to Proposition 3.3 of the paper 
 def conductor_bound(N,l):
     N1 = N
     while(N1 % l == Integer(0)):
@@ -99,6 +79,8 @@ def all_characters(C, N, l, bound=Integer(300)):
                 X.remove(chi)
     return X
 
+#Given a curve C, a prime l, and a character chi
+#output a trace function that correspond to chi.
 def trace_function_from_character(C, l, chi):
     def trace(p):
         Q = C.change_ring(GF(p)).frobenius_polynomial().change_ring(GF(l))
@@ -107,7 +89,6 @@ def trace_function_from_character(C, l, chi):
     return trace
     
 
-#Not using this anymore
 #input: curve C with conductor N and prime l
 #output: list of functions that takes prime p not dividing N to frob trace at p
 def frob_trace_functions(C,N,l,bound=Integer(300)):
@@ -121,7 +102,7 @@ def frob_trace_functions(C,N,l,bound=Integer(300)):
         result.append(trace)
     return result
     
-
+## Given a curve C, a prime l, and a prime p,
 ## check whether the matrix of Frob_p (in C) is diagonal mod l or not
 ## should work for both genus one and two
 def is_frob_matrix_diagonal(C, l, p):
@@ -131,7 +112,7 @@ def is_frob_matrix_diagonal(C, l, p):
         result.append(1  if power_mod(x, p**(l-1) , f) == x  else 0 )
     else:
         return magma.function_call('IsFrobeniusMatrixDiagonal', [C,l,p]).sage()
-
+## Given a curve C, a prime l, and list `primes` of prime numbers,
 ## check whether the matrix of Frob_p (in C) is diagonal mod l or not for each prime p < bound
 ## should work for both genus one and two
 ## return a list of -1 (bad reduction), 0 (not diagonal), 1 (diagonal)
@@ -149,9 +130,14 @@ def is_frob_matrix_diagonal_batch(C, l, primes):
     else:
         return magma.function_call('IsFrobeniusMatrixDiagonalBatch', [C,l,primes]).sage()
 
+# Given a genus 2 curve C, a prime l, and a `bound`,
+# find all primes up to `bound` for wihch Frob_p acts trivially on l-torsion of Jac(C).
 def find_identity_prime(C, l, bound):
     return magma.function_call('FindIdentityPrime', [C,l,bound]).sage()
-    
+
+# Given a genus 2 curve C, its conductor N, and a prime l,
+# always return True if the representation corresponding to Hperp/H is reducible.
+# returns False if the representation is irreducible, and `bound` is sufficiently high.
 def is_HperpH_reducible(C, N, l, bound=300):
     f = frob_trace_functions(C,N,l,bound)[0]
     d = conductor_bound(N,l)

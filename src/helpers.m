@@ -1,5 +1,6 @@
 intrinsic FindIdentityPrime(C::CrvHyp, l::RngIntElt, bound::RngIntElt) -> SeqEnum
-    {Find a prime which Frob acts as identity matrix}
+    {Given a genus 2 curve C, a prime l, and a given bound,
+    find all primes p up to `bound` for which Frob_p acts as identity matrix on the l-torsion of Jac(C).}
     D := Numerator(Discriminant(C));
     result := [];
     for p in PrimesUpTo(bound) do
@@ -15,7 +16,9 @@ intrinsic FindIdentityPrime(C::CrvHyp, l::RngIntElt, bound::RngIntElt) -> SeqEnu
 end intrinsic;
 
 intrinsic IsFrobeniusMatrixDiagonal(C::CrvHyp, l::RngIntElt, p::RngIntElt) -> BoolElt
-    {Genus 2}
+    {Given a genus 2 curve C, a prime l, and a list of primes `primes`,
+    return True if Frob_p acts diagonally on the l-torsion of Jac(C).
+    (Requires avisogenies.)}
     F<a> := GF(p^(l-1));
     C1 := ChangeRing(C,F);
     J1 := Jacobian(C1);
@@ -24,7 +27,8 @@ intrinsic IsFrobeniusMatrixDiagonal(C::CrvHyp, l::RngIntElt, p::RngIntElt) -> Bo
 end intrinsic;
 
 intrinsic IsFrobeniusMatrixDiagonal(E::CrvEll, l::RngIntElt, p::RngIntElt) -> BoolElt
-    {Elliptic Curve}
+    {Given an elliptic curve E, a prime l, and a list of primes `primes`,
+    return True if Frob_p acts diagonally on the l-torsion of E.}
     E1 := ChangeRing(E, GF(p));
     f<x> := DivisionPolynomial(E1, l);
     return Modexp(ChangeRing(x, GF(p)), p^(l-1), f) eq x;
@@ -32,7 +36,9 @@ end intrinsic;
 
 
 intrinsic IsFrobeniusMatrixDiagonalBatch(C::CrvHyp, l::RngIntElt, primes::SeqEnum) -> SeqEnum
-    {Genus 2 Curve. Return the result (1 if diagonal, 0 if not, -1 if invalid) for each prime p in primes.}
+    {Given a genus 2 curve C, a prime l, and a list of primes `primes`,
+    return whether Frob_p acts diagonally on the l-torsion of Jac(C)
+    (1 if diagonal, 0 if not, -1 if invalid) for each prime p in primes.}
     result := [];
     d := Numerator(Discriminant(C));
     for p in primes do
@@ -48,7 +54,9 @@ intrinsic IsFrobeniusMatrixDiagonalBatch(C::CrvHyp, l::RngIntElt, primes::SeqEnu
 end intrinsic;
 
 intrinsic IsFrobeniusMatrixDiagonalBatch(E::CrvEll, l::RngIntElt, primes::SeqEnum) -> BoolElt
-    {Elliptic Curve. Return the result (1 if diagonal, 0 if not, -1 if invalid) for each prime p in primes.}
+    {Given an elliptic curve E, a prime l, and a list of primes `primes`,
+    return whether Frob_p acts diagonally on the l-torsion of E
+    (1 if diagonal, 0 if not, -1 if invalid) for each prime p in primes.}
     result := [];
     d := Numerator(Discriminant(E));
     for p in primes do
